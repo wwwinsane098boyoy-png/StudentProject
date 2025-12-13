@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRESCO | Productivity Dashboard</title>
+    
+    <!-- TAILWIND & ICONS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- FONTS & STYLES -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .checkbox-wrapper input:checked + div { background-color: #10b981; border-color: #10b981; }
+        .checkbox-wrapper input:checked + div svg { display: block; }
+        
+        .todo-item.completed span { text-decoration: line-through; color: #64748b; }
+
+        .calendar-day {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        .calendar-day:hover { background-color: #334155; }
+        .calendar-day.active { background-color: #10b981; color: white; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+
+        .nav-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); border-color: #3b82f6; }
+
+        /* news section */
+        /* NEWS TICKER ANIMATION */
+.news-scroll-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.news-track {
+    display: inline-block;
+    animation: scroll-left 30s linear infinite;
+}
+
+/* Pause scrolling when mouse hovers so user can read */
+.news-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.news-item {
+    display: inline-block;
+    padding: 0 2rem;
+    font-size: 0.95rem;
+    color: #cbd5e1; /* Slate 300 */
+}
+
+.news-item strong {
+    color: #6366f1; /* Indigo Accent */
+}
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-10 max-w-7xl mx-auto">
+    
+    <!-- FLASK USER BRIDGE -->
+    <script>
+        // This takes the logged-in user from Python and saves it for JS to use
+        const currentUserEmail = "{{ user.email }}";
+        localStorage.setItem("currentUser", currentUserEmail);
+    </script>
+
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center shadow-lg shadow-blue-900/50 border border-blue-500/30">
+                <i class="fas fa-seedling text-2xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 tracking-tight">CRESCO</h1>
+                <p class="text-xs text-blue-300/80 font-medium tracking-widest uppercase mt-1">I grow • I increase • I become greater</p>
+            </div>
+        </div>
+        <!-- Logout Button -->
+        <a href="{{ url_for('logout') }}" class="text-slate-400 hover:text-white transition-colors text-sm font-semibold flex items-center gap-2">
+            Logout <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="flex flex-col md:flex-row gap-6 h-auto md:h-[500px] mb-6">
+        
+        <!-- To-Do List -->
+        <div class="w-full md:w-[70%] glass-panel rounded-2xl p-6 flex flex-col shadow-xl">
+            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-emerald-400">
+                <i class="fas fa-list-check"></i> Today's Tasks
+            </h2>
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="todoInput" placeholder="Add a new task..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 text-slate-200 placeholder-slate-500 transition-colors">
+                <button onclick="addTodo()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/50">Add</button>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-2" id="todoList">
+                <div class="text-center text-slate-500 mt-10"><p>No tasks yet. Start your day!</p></div>
+            </div>
+        </div>
+
+        <!-- Streak Meter -->
+        <div class="w-full md:w-[30%] glass-panel rounded-2xl p-6 flex flex-col shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-orange-400"><i class="fas fa-fire"></i> Productivity Streak</h2>
+            <div class="flex justify-between mb-6 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                <div class="text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider">Current</div>
+                    <div class="text-2xl font-bold text-white" id="currentStreak">0</div>
+                </div>
+                <div class="w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider">Max</div>
+                    <div class="text-2xl font-bold text-orange-400" id="maxStreak">0</div>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-medium text-slate-300" id="currentMonthYear">Month Year</span>
+                    <button onclick="toggleToday()" id="markTodayBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded transition-colors border border-slate-600">Mark Today</button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 mb-2"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+                <div class="grid grid-cols-7 gap-1 flex-1 content-start" id="calendarGrid"></div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-slate-700/50">
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <div class="checkbox-wrapper relative w-6 h-6">
+                        <input type="checkbox" id="dailyProductiveCheck" class="peer opacity-0 absolute w-full h-full cursor-pointer" onchange="toggleProductive(this.checked)">
+                        <div class="w-6 h-6 border-2 border-slate-500 rounded-md transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                    <span class="text-sm text-slate-300 group-hover:text-white transition-colors">I was productive today</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Focus Section -->
+    <div class="w-full h-auto md:h-64 glass-panel rounded-2xl p-6 mb-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+        <!-- Left: Input Goal -->
+        <div class="w-full md:w-1/2 z-10 h-full flex flex-col justify-center border-r border-slate-700/30 pr-4">
+            <h2 class="text-lg font-medium text-blue-400 uppercase tracking-wide mb-2">Daily Focus</h2>
+            <textarea id="focusInput" placeholder="What is your ONE major goal for today?" class="w-full bg-transparent text-3xl md:text-4xl font-bold text-white placeholder-slate-600 border-none focus:ring-0 resize-none overflow-hidden outline-none" rows="2" oninput="saveFocus()"></textarea>
+        </div>
+        <!-- Right: Quote (Link to Focus Page) -->
+        <a id="focusLink" href="{{ url_for('focus') }}" class="w-full md:w-1/2 h-full flex flex-col items-center justify-center bg-slate-800/30 hover:bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 z-10 cursor-pointer transition-all relative overflow-hidden group/quote block text-decoration-none">
+            <i class="fas fa-quote-left absolute top-4 left-4 text-slate-600/50 text-4xl"></i>
+            <div class="absolute top-4 right-4 flex gap-2 z-20">
+                <button onclick="event.preventDefault(); event.stopPropagation(); fetchQuote(true)" class="text-slate-600 hover:text-white transition-colors" title="Get New Quote"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <div id="quoteContainer" class="text-center relative z-10">
+                <p id="quoteText" class="text-xl italic text-slate-200 mb-4 font-serif">"Loading motivation..."</p>
+                <p id="quoteAuthor" class="text-sm text-blue-400 font-medium uppercase tracking-wider"></p>
+            </div>
+            <div class="absolute bottom-3 right-4 text-xs text-slate-500 flex items-center gap-1 opacity-60 group-hover/quote:text-blue-400 transition-colors"><span>Visit Focus Page</span> <i class="fas fa-external-link-alt"></i></div>
+        </a>
+    </div>
+
+    <!-- Bottom Section Links -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-64">
+        <!-- Skill Link -->
+        <a id="skillLink" href="{{ url_for('skill') }}" class="nav-card glass-panel rounded-2xl p-6 relative group cursor-pointer border border-transparent hover:border-purple-500/30 overflow-hidden flex flex-col justify-between block">
+            <div class="absolute -right-10 -bottom-10 text-9xl text-purple-500/10 group-hover:text-purple-500/20 transition-colors z-0"><i class="fas fa-brain"></i></div>
+            <div class="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4 text-xl"><i class="fas fa-brain"></i></div>
+                    <h3 class="text-2xl font-bold text-slate-100">SkillMaster</h3>
+                    <p class="text-slate-400 text-sm mt-2">Sharpen your craft</p>
+                </div>
+                <div class="flex items-center text-purple-400 text-sm font-medium mt-4"><span>Go to Skills</span><i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+            </div>
+        </a>
+        <!-- Exercise Link -->
+        <a id="exerciseLink" href="{{ url_for('exercise') }}" class="nav-card glass-panel rounded-2xl p-6 relative group cursor-pointer border border-transparent hover:border-rose-500/30 overflow-hidden flex flex-col justify-between block">
+            <div class="absolute -right-10 -bottom-10 text-9xl text-rose-500/10 group-hover:text-rose-500/20 transition-colors z-0"><i class="fas fa-dumbbell"></i></div>
+            <div class="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center mb-4 text-xl"><i class="fas fa-dumbbell"></i></div>
+                    <h3 class="text-2xl font-bold text-slate-100">FitTrack</h3>
+                    <p class="text-slate-400 text-sm mt-2">Stay fit and healthy</p>
+                </div>
+                <div class="flex items-center text-rose-400 text-sm font-medium mt-4"><span>Start Workout</span><i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+            </div>
+        </a>
+        <!-- Expense Link -->
+        <a id="expenseLink" href="{{ url_for('expense') }}" class="nav-card glass-panel rounded-2xl p-6 relative group cursor-pointer border border-transparent hover:border-amber-500/30 overflow-hidden flex flex-col justify-between block">
+            <div class="absolute -right-10 -bottom-10 text-9xl text-amber-500/10 group-hover:text-amber-500/20 transition-colors z-0"><i class="fas fa-wallet"></i></div>
+            <div class="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 text-xl"><i class="fas fa-wallet"></i></div>
+                    <h3 class="text-2xl font-bold text-slate-100">SpendSense</h3>
+                    <p class="text-slate-400 text-sm mt-2">Track your finances</p>
+                </div>
+                <div class="flex items-center text-amber-400 text-sm font-medium mt-4"><span>Manage Budget</span><i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+            </div>
+        </a>
+    </div>
+
+    <!-- GLOBAL HEADLINES SECTION -->
+<div class="mt-6 w-full glass-panel rounded-2xl p-4 flex items-center gap-4 shadow-xl border border-slate-700/50">
+    
+    <!-- Label -->
+    <div class="flex items-center gap-2 px-4 py-1 bg-indigo-600/20 border border-indigo-500/30 rounded-lg shrink-0">
+        <i class="fas fa-globe text-indigo-400 animate-pulse"></i>
+        <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Spotlight</span>
+    </div>
+
+    <!-- Scrolling Track -->
+    <div class="news-scroll-container flex-1 mask-linear-gradient">
+        <div id="newsTrack" class="news-track">
+            <!-- News items will be loaded here by JS -->
+            <span class="news-item">Loading headlines...</span>
+        </div>
+    </div>
+</div>
+
+    <!-- JAVASCRIPT (MULTI-USER SUPPORT) -->
+    <script>
+        // --- Keys and User Setup ---
+        const user = localStorage.getItem("currentUser") || "guest";
+        const KEY_TODOS = user + "_todos";
+        const KEY_STREAK = user + "_streakData";
+        const KEY_FOCUS = user + "_focusText";
+        
+        let todos = JSON.parse(localStorage.getItem(KEY_TODOS)) || [];
+        let streakData = JSON.parse(localStorage.getItem(KEY_STREAK)) || {};
+        let focusText = localStorage.getItem(KEY_FOCUS) || "";
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTodos();
+            initCalendar();
+            updateStreakStats();
+            checkTodayStatus();
+            fetchQuote();
+            
+            const focusInput = document.getElementById('focusInput');
+            focusInput.value = focusText;
+            autoResizeTextarea(focusInput);
+            
+            document.getElementById('todoInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') addTodo();
+            });
+        });
+
+        // --- To-Do Functions ---
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (text) {
+                todos.push({ id: Date.now(), text: text, completed: false });
+                saveTodos(); renderTodos(); input.value = '';
+            }
+        }
+        function toggleTodo(id) {
+            const index = todos.findIndex(t => t.id === id);
+            if (index !== -1) { todos[index].completed = !todos[index].completed; saveTodos(); renderTodos(); }
+        }
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos(); renderTodos();
+        }
+        function editTodoText(id, newText) {
+            const index = todos.findIndex(t => t.id === id);
+            if (index !== -1) { todos[index].text = newText; saveTodos(); }
+        }
+        function saveTodos() { localStorage.setItem(KEY_TODOS, JSON.stringify(todos)); }
+        function renderTodos() {
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+            if (todos.length === 0) { list.innerHTML = '<div class="text-center text-slate-500 mt-10"><p>No tasks yet. Start your day!</p></div>'; return; }
+            todos.forEach(todo => {
+                const div = document.createElement('div');
+                div.className = `todo-item flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg mb-2 group border border-transparent hover:border-slate-700 transition-all ${todo.completed ? 'completed opacity-60' : ''}`;
+                div.innerHTML = `
+                    <div class="checkbox-wrapper relative w-5 h-5 flex-shrink-0">
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} class="peer opacity-0 absolute w-full h-full cursor-pointer" onchange="toggleTodo(${todo.id})">
+                        <div class="w-5 h-5 border-2 border-slate-500 rounded transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center"><svg class="w-3 h-3 text-white hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+                    </div>
+                    <span contenteditable="true" class="flex-1 text-slate-200 outline-none focus:text-white" onblur="editTodoText(${todo.id}, this.innerText)" onkeydown="if(event.key === 'Enter') { this.blur(); event.preventDefault(); }">${todo.text}</span>
+                    <button onclick="deleteTodo(${todo.id})" class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity px-2"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // --- Streak & Calendar ---
+        function initCalendar() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const todayDate = now.getDate();
+    
+    const todayObj = new Date();
+    todayObj.setHours(0,0,0,0);
+
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+    
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+    
+    // Empty slots
+    for (let i = 0; i < firstDayIndex; i++) grid.appendChild(document.createElement('div'));
+    
+    // Draw Days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isActive = streakData[dateKey];
+        const isToday = (day === todayDate);
+
+        const dayEl = document.createElement('div');
+        
+        let classes = "calendar-day ";
+        
+        // 1. IS THIS TODAY?
+        if (isToday) {
+            // Active styling, Border, Pointer Cursor
+            classes += isActive ? 'active' : 'text-slate-200';
+            classes += ' border border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]';
+            dayEl.onclick = () => toggleStreakDate(dateKey); // Only today gets a click listener
+            dayEl.style.cursor = "pointer";
+        } 
+        // 2. IS THIS IN THE PAST?
+        else if (day < todayDate) {
+            if (isActive) {
+                classes += 'active opacity-80'; // Show streak, but slightly dimmed
+            } else {
+                classes += 'text-slate-600'; // Fade out empty past days
+            }
+            dayEl.style.cursor = "default"; // Show normal cursor (not clickable)
+        } 
+        // 3. IS THIS IN THE FUTURE?
+        else {
+            classes += 'text-slate-700 opacity-30';
+            dayEl.style.cursor = "default";
+        }
+
+        dayEl.className = classes;
+        dayEl.textContent = day;
+        
+        grid.appendChild(dayEl);
+    }
+}
+        function toggleStreakDate(dateString) {
+    // 1. Create Date Objects (Midnight)
+    const clickedDate = new Date(dateString);
+    const today = new Date();
+    
+    clickedDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
+    // 2. Strict Check: If it is NOT today, block it.
+    // .getTime() compares the exact millisecond timestamp
+    if (clickedDate.getTime() !== today.getTime()) {
+        alert("History is locked! You can only log progress for Today.");
+        return; 
+    }
+
+    // 3. Toggle Data (Only runs if it is Today)
+    if (streakData[dateString]) {
+        delete streakData[dateString];
+    } else {
+        streakData[dateString] = true;
+    }
+    
+    localStorage.setItem(KEY_STREAK, JSON.stringify(streakData));
+    initCalendar();
+    updateStreakStats();
+    checkTodayStatus(); 
+}
+        function toggleToday() {
+            const now = new Date();
+            const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            toggleStreakDate(dateKey);
+        }
+        function toggleProductive(isChecked) {
+            const now = new Date();
+            const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            if (isChecked) streakData[dateKey] = true; else delete streakData[dateKey];
+            localStorage.setItem(KEY_STREAK, JSON.stringify(streakData));
+            initCalendar(); updateStreakStats();
+        }
+        function checkTodayStatus() {
+            const now = new Date();
+            const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const checkbox = document.getElementById('dailyProductiveCheck');
+            const btn = document.getElementById('markTodayBtn');
+            if (streakData[dateKey]) {
+                checkbox.checked = true; btn.textContent = "Unmark Today";
+                btn.classList.add('bg-red-900', 'border-red-800', 'text-red-200'); btn.classList.remove('bg-slate-700');
+            } else {
+                checkbox.checked = false; btn.textContent = "Mark Today";
+                btn.classList.remove('bg-red-900'); btn.classList.add('bg-slate-700');
+            }
+        }
+        function updateStreakStats() {
+            const dates = Object.keys(streakData).sort();
+            if (dates.length === 0) { document.getElementById('currentStreak').textContent = '0'; document.getElementById('maxStreak').textContent = '0'; return; }
+            let maxStreak = 0, currentRun = 0, prevDate = null;
+            dates.forEach(dateStr => {
+                const d = new Date(dateStr); d.setHours(0,0,0,0);
+                if (prevDate) {
+                    const diffDays = Math.ceil(Math.abs(d - prevDate) / (86400000));
+                    if (diffDays === 1) currentRun++; else currentRun = 1;
+                } else currentRun = 1;
+                if (currentRun > maxStreak) maxStreak = currentRun;
+                prevDate = d;
+            });
+            let streak = 0;
+            const now = new Date(); now.setHours(0,0,0,0);
+            let check = new Date(now);
+            let key = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+            if (streakData[key]) streak++;
+            else {
+                check.setDate(check.getDate() - 1);
+                key = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+                if (!streakData[key]) { document.getElementById('currentStreak').textContent = '0'; document.getElementById('maxStreak').textContent = maxStreak; return; }
+            }
+            while (true) {
+                check.setDate(check.getDate() - 1);
+                key = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+                if (streakData[key]) streak++; else break;
+            }
+            document.getElementById('currentStreak').textContent = streak;
+            document.getElementById('maxStreak').textContent = maxStreak;
+        }
+
+        // --- Focus & Quote ---
+        function saveFocus() {
+            const val = document.getElementById('focusInput').value;
+            localStorage.setItem(KEY_FOCUS, val);
+        }
+        function autoResizeTextarea(element) {
+            element.style.height = 'auto'; element.style.height = element.scrollHeight + 'px';
+        }
+        async function fetchQuote(forceRefresh = false) {
+            const quoteText = document.getElementById('quoteText');
+            const quoteAuthor = document.getElementById('quoteAuthor');
+            const today = new Date().toDateString();
+            const storedQuote = JSON.parse(localStorage.getItem('dailyQuote'));
+            if (!forceRefresh && storedQuote && storedQuote.date === today) {
+                quoteText.textContent = `"${storedQuote.text}"`; quoteAuthor.textContent = `- ${storedQuote.author}`; return;
+            }
+            quoteText.classList.add('opacity-50');
+            try {
+                const response = await fetch('https://dummyjson.com/quotes/random');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                const newQuote = { text: data.quote, author: data.author, date: today };
+                localStorage.setItem('dailyQuote', JSON.stringify(newQuote));
+                quoteText.textContent = `"${data.quote}"`; quoteAuthor.textContent = `- ${data.author}`;
+            } catch (error) {
+                const fallbackQuotes = [
+                    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+                    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+                    { text: "Success is not final, failure is not fatal.", author: "Winston Churchill" }
+                ];
+                const random = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+                const fallbackQuoteObj = { text: random.text, author: random.author, date: today };
+                localStorage.setItem('dailyQuote', JSON.stringify(fallbackQuoteObj));
+                quoteText.textContent = `"${random.text}"`; quoteAuthor.textContent = `- ${random.author}`;
+            } finally {
+                quoteText.classList.remove('opacity-50');
+            }
+        }
+
+        // --- NEWS TICKER LOGIC ---
+async function loadHeadlines() {
+    const track = document.getElementById('newsTrack');
+    
+    try {
+        // We use a free RSS-to-JSON converter with BBC World News
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/world/rss.xml');
+        const data = await res.json();
+        
+        // Create the news string
+        let newsContent = "";
+        
+        data.items.slice(0, 8).forEach(item => { // Take top 8 stories
+            // Clean up the title
+            const title = item.title.replace(/'/g, "");
+            newsContent += `
+                <a href="${item.link}" target="_blank" class="news-item hover:text-white transition-colors">
+                    <strong>•</strong> ${title}
+                </a>
+            `;
+        });
+
+        // DUPLICATE CONTENT for smooth infinite scrolling
+        // We put the content twice: [News A, News B] + [News A, News B]
+        track.innerHTML = newsContent + newsContent;
+
+    } catch (error) {
+        console.error("News failed to load", error);
+        // Fallback static news if API fails (good for presentation safety!)
+        const staticNews = `
+            <span class="news-item"><strong>•</strong> Stay hydrated: Drink water while studying.</span>
+            <span class="news-item"><strong>•</strong> Tip: Review your expenses daily to save money.</span>
+            <span class="news-item"><strong>•</strong> Health: Take a 5-minute walk every hour.</span>
+            <span class="news-item"><strong>•</strong> Focus: Try the Pomodoro technique today.</span>
+        `;
+        track.innerHTML = staticNews + staticNews;
+    }
+}
+
+// Add this to your existing DOMContentLoaded listener
+document.addEventListener('DOMContentLoaded', () => {
+    // ... your existing init functions ...
+    loadHeadlines(); // <--- Add this line!
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Mission - Student Life OS</title>
+    
+    <!-- Tailwind CSS CDN for utility-first styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Custom styles for dark theme and subtle animations -->
+    <style>
+        /* =====================================================
+           ROOT VARIABLES - Define our dark theme color palette
+           Using deep grays, blacks, and subtle blue accents
+           ===================================================== */
+        :root {
+            --bg-primary: #0a0a0f;        /* Deep black background */
+            --bg-secondary: #12121a;       /* Slightly lighter dark */
+            --bg-card: #1a1a24;            /* Card backgrounds */
+            --accent-blue: #3b82f6;        /* Primary blue accent */
+            --accent-blue-dim: #1e3a5f;    /* Dimmed blue for subtle effects */
+            --text-primary: #e5e7eb;       /* Light gray text */
+            --text-secondary: #9ca3af;     /* Muted gray text */
+            --border-subtle: #2a2a3a;      /* Subtle border color */
+        }
+
+        /* =====================================================
+           BASE STYLES - Apply dark theme to body
+           ===================================================== */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* =====================================================
+           SUBTLE GRADIENT BACKGROUND - Creates depth without
+           being too flashy. Uses radial gradients for focus
+           ===================================================== */
+        .hero-gradient {
+            background: 
+                /* Top-right subtle blue glow */
+                radial-gradient(ellipse at 80% 20%, var(--accent-blue-dim) 0%, transparent 50%),
+                /* Bottom-left subtle glow for balance */
+                radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                /* Base dark background */
+                var(--bg-primary);
+        }
+
+        /* =====================================================
+           CARD STYLING - Cards have subtle borders and hover
+           effects that make them feel interactive
+           ===================================================== */
+        .mission-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle glow effect on card hover */
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mission-card:hover::before {
+            opacity: 1;
+        }
+
+        .mission-card:hover {
+            border-color: var(--accent-blue-dim);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* =====================================================
+           ACCENT LINE - The vertical blue line that adds
+           visual interest to quote sections
+           ===================================================== */
+        .accent-line {
+            background: linear-gradient(180deg, var(--accent-blue), transparent);
+        }
+
+        /* =====================================================
+           TEXT HIGHLIGHT - Subtle blue text for emphasis
+           without being too bright or distracting
+           ===================================================== */
+        .text-accent {
+            color: var(--accent-blue);
+        }
+
+        /* =====================================================
+           PULSE ANIMATION - Subtle breathing effect for
+           the icon to draw attention without being annoying
+           ===================================================== */
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .pulse-subtle {
+            animation: subtle-pulse 3s ease-in-out infinite;
+        }
+
+        /* =====================================================
+           FADE-IN ANIMATION - Elements fade in when they
+           enter the viewport for a polished feel
+           ===================================================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* Staggered delays for sequential animations */
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.3s; opacity: 0; }
+        .delay-3 { animation-delay: 0.5s; opacity: 0; }
+        .delay-4 { animation-delay: 0.7s; opacity: 0; }
+
+        /* =====================================================
+           ICON CONTAINER - Circular container with subtle
+           gradient border for visual hierarchy
+           ===================================================== */
+        .icon-container {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* =====================================================
+           DIVIDER - Horizontal line with gradient fade
+           for clean section separation
+           ===================================================== */
+        .gradient-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-subtle), var(--accent-blue-dim), var(--border-subtle), transparent);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    
+    <!-- =========================================================
+         MAIN MISSION SECTION
+         This is the primary container for our mission statement
+         Uses the hero-gradient for subtle depth
+         ========================================================= -->
+    <section class="hero-gradient min-h-screen py-16 px-4 sm:px-6 lg:px-8">
+        
+        <!-- Centered container with max-width for readability -->
+        <div class="max-w-5xl mx-auto">
+            
+            <!-- =================================================
+                 SECTION HEADER
+                 Includes icon, title, and tagline
+                 ================================================= -->
+            <div class="text-center mb-16 animate-fade-in delay-1">
+                
+                <!-- Decorative icon with pulse animation -->
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full icon-container mb-8 pulse-subtle">
+                    <!-- Target/Mission Icon SVG -->
+                    <svg class="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                
+                <!-- Main section title -->
+               <h1 class="text-4xl sm:text-5xl font-bold mb-4" style="color: var(--text-primary);">
+                    Our Mission
+                </h1>
+                <span class="text-3xl sm:text-3xl font-bold mb-3" style="color: var(--text-secondary);"><a href="{{ url_for('home') }}" 
+   class="text-3xl sm:text-3xl font-bold mb-3 transition-colors duration-300 hover:!text-white" 
+   style="color: var(--text-secondary);">
+   CRESCO
+</a></span>
+                
+                <!-- Subtitle/tagline with muted styling -->
+                <p class="text-lg" style="color: var(--text-secondary);">
+                    Understanding the problem we're solving
+                </p>
+            </div>
+
+            <!-- =================================================
+                 MAIN PROBLEM STATEMENT CARD
+                 The hero quote that captures the essence of
+                 our mission - combines the "Winner" option
+                 ================================================= -->
+            <div class="mission-card rounded-2xl p-8 sm:p-12 mb-12 animate-fade-in delay-2">
+                
+                <!-- Flex container with accent line and text -->
+                <div class="flex items-start gap-6">
+                    
+                    <!-- Vertical accent line for visual emphasis -->
+                    <div class="accent-line w-1 min-h-[120px] rounded-full hidden sm:block"></div>
+                    
+                    <!-- Quote content -->
+                    <div>
+                        <!-- The main powerful statement -->
+                        <blockquote class="text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed mb-6" style="color: var(--text-primary);">
+                            "Students are <span class="text-accent">drowning in good intentions</span> but starving for structure. Between the library, the gym, and the bank account, the modern student is managing <span class="text-accent">three full-time jobs</span> with zero oversight."
+                        </blockquote>
+                        
+                        <!-- The solution teaser -->
+                        <p class="text-lg sm:text-xl font-semibold" style="color: var(--accent-blue);">
+                            We turn that chaos into a daily streak.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decorative divider between main quote and details -->
+            <div class="gradient-divider my-12 animate-fade-in delay-2"></div>
+
+            <!-- =================================================
+                 PROBLEM BREAKDOWN CARDS
+                 Three cards explaining different angles of
+                 the problem we're solving
+                 ================================================= -->
+            <div class="grid md:grid-cols-3 gap-6 mb-12 animate-fade-in delay-3">
+                
+                <!-- =============================================
+                     CARD 1: THE CHAOS ANGLE
+                     Focuses on fragmentation and juggling
+                     ============================================= -->
+                <div class="mission-card rounded-xl p-6">
+                    
+                    <!-- Card icon -->
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
+                        <!-- Puzzle piece icon representing fragmentation -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Card title -->
+                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
+                        The Fragmentation Problem
+                    </h3>
+                    
+                    <!-- Card description - explains the chaos angle -->
+                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                        Students today are expected to master new skills, manage tight budgets, and stay physically fit—but they're trying to build a future while <span class="text-accent">juggling three different apps</span> and scattered systems. We fix the fragmentation of the student lifestyle by bringing everything into one unified experience.
+                    </p>
+                </div>
+
+                <!-- =============================================
+                     CARD 2: THE ADULTING ANGLE
+                     Focuses on the systemic gap in student tools
+                     ============================================= -->
+                <div class="mission-card rounded-xl p-6">
+                    
+                    <!-- Card icon -->
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
+                        <!-- Refresh/loop icon representing the cycle -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Card title -->
+                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
+                        The "Adulting" Glitch
+                    </h3>
+                    
+                    <!-- Card description - explains the adulting angle -->
+                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                        Students are stuck in a loop of being <span class="text-accent">broke, burnt out, and behind</span> on their goals. There's never been an operating system designed specifically for student life—a central hub that understands the unique challenges of balancing education, finances, and wellbeing. <span class="text-accent">Until now.</span>
+                    </p>
+                </div>
+
+                <!-- =============================================
+                     CARD 3: THE STRUCTURE SOLUTION
+                     Focuses on what we provide as the solution
+                     ============================================= -->
+                <div class="mission-card rounded-xl p-6">
+                    
+                    <!-- Card icon -->
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
+                        <!-- Chart/trending icon representing progress -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Card title -->
+                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
+                        Structure Meets Simplicity
+                    </h3>
+                    
+                    <!-- Card description - explains our solution -->
+                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                        We transform overwhelming chaos into <span class="text-accent">achievable daily streaks</span>. Our platform provides the oversight and structure that's been missing—tracking your skills growth, financial health, and fitness goals in one place. Finally, students get the system they deserve.
+                    </p>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 DETAILED EXPLANATION SECTION
+                 Longer-form content explaining our approach
+                 ================================================= -->
+            <div class="mission-card rounded-2xl p-8 sm:p-10 animate-fade-in delay-4">
+                
+                <h2 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">
+                    Why This Matters
+                </h2>
+                
+                <!-- Grid layout for the explanation points -->
+                <div class="grid sm:grid-cols-2 gap-8">
+                    
+                    <!-- Left column: The Problem Deep Dive -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--accent-blue);">
+                            <!-- Warning icon -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            The Reality Check
+                        </h3>
+                        
+                        <!-- Bullet points explaining the problem -->
+                        <ul class="space-y-3 text-sm" style="color: var(--text-secondary);">
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">•</span>
+                                <span>The average student uses 5+ different apps to manage their daily life, creating information silos and mental overhead.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">•</span>
+                                <span>70% of students report feeling overwhelmed by competing priorities between academics, finances, and health.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">•</span>
+                                <span>Traditional productivity tools weren't built for the unique rhythm of student life—semester cycles, variable income, and evolving goals.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Right column: Our Approach -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--accent-blue);">
+                            <!-- Lightbulb/solution icon -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                            Our Approach
+                        </h3>
+                        
+                        <!-- Bullet points explaining our solution -->
+                        <ul class="space-y-3 text-sm" style="color: var(--text-secondary);">
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">✓</span>
+                                <span><strong style="color: var(--text-primary);">Unified Dashboard:</strong> One place to see your skills progress, budget status, and fitness streaks at a glance.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">✓</span>
+                                <span><strong style="color: var(--text-primary);">Smart Streaks:</strong> Gamified daily habits that make consistency rewarding, not exhausting.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-accent mt-1">✓</span>
+                                <span><strong style="color: var(--text-primary);">Student-First Design:</strong> Built around how students actually live—flexible, forgiving, and focused on progress over perfection.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Bottom CTA/Summary -->
+                <div class="mt-8 pt-6" style="border-top: 1px solid var(--border-subtle);">
+                    <p class="text-center text-base" style="color: var(--text-secondary);">
+                        We believe every student deserves a <span class="text-accent font-semibold">personal operating system</span> that grows with them—turning daily chaos into meaningful progress, one streak at a time.
+                    </p>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 FOOTER ATTRIBUTION
+                 Simple footer with subtle styling
+                 ================================================= -->
+            <footer class="text-center mt-16 pb-8">
+                <p class="text-sm" style="color: var(--text-secondary);">
+                    Built for students, by people who understand the struggle.
+                </p>
+            </footer>
+
+        </div>
+    </section>
+
+    <!-- =========================================================
+         JAVASCRIPT - Intersection Observer for Scroll Animations
+         This script triggers animations when elements come into view
+         ========================================================= -->
+    <script>
+        // =====================================================
+        // INTERSECTION OBSERVER SETUP
+        // Watches for elements entering the viewport and
+        // triggers their fade-in animations
+        // =====================================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Create an observer instance
+            // threshold: 0.1 means trigger when 10% of element is visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // When element enters viewport, add the animation class
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                        // Stop observing after animation triggers (performance)
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,  // Trigger when 10% visible
+                rootMargin: '0px 0px -50px 0px'  // Slight offset for better timing
+            });
+
+            // Select all elements with animation delay classes
+            // These are the elements we want to animate on scroll
+            const animatedElements = document.querySelectorAll('.delay-1, .delay-2, .delay-3, .delay-4');
+            
+            // Start observing each element
+            animatedElements.forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // =====================================================
+        // SMOOTH SCROLL ENHANCEMENT
+        // Adds smooth scrolling behavior for any anchor links
+        // =====================================================
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

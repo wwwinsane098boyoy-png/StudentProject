@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Tracker</title>
+    <style>
+        :root {
+            --bg-body: #e2e8f0; --bg-card: #ffffff; --bg-input: #f8fafc;
+            --border-subtle: #cbd5e1; --shadow-card: 0 10px 25px -5px rgba(51, 65, 85, 0.15);
+            --accent: #6366f1; --accent-soft: #e0e7ff; --accent-strong: #4f46e5; --accent-secondary: #06b6d4;
+            --streak-bg: #ffedd5; --streak-text: #c2410c; --streak-broken: #94a3b8;
+            --text-main: #1e293b; --text-muted: #64748b;
+            --danger: #ef4444; --success: #10b981;
+            --radius-lg: 16px; --radius-md: 10px; --transition: 200ms ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body); color: var(--text-main);
+            line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column;
+        }
+        header {
+            background: var(--bg-card); padding: 1rem 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; align-items: center; gap: 1.25rem;
+        }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--accent-strong); letter-spacing: -0.5px; }
+        .brand-divider { height: 24px; width: 2px; background-color: #e5e7eb; border-radius: 2px; }
+        .parent-logo { color: #4b5563; font-size: 1.25rem; font-weight: 600; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif; transition: opacity 0.2s ease; }
+        .parent-logo:hover { opacity: 0.7; cursor: pointer; }
+        .skill-section-wrapper { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; width: 100%; }
+        .tracker-card { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 2.5rem; border-top: 4px solid var(--accent); }
+        .section-header { margin-bottom: 2rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .section-desc { color: var(--text-muted); margin-top: 0.25rem; }
+        .input-row { display: flex; gap: 1rem; align-items: flex-end; background: var(--bg-input); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 2rem; }
+        .field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); }
+        .styled-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 1rem; background: white; transition: var(--transition); }
+        .styled-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+        .btn-add { background: var(--accent); color: white; border: none; padding: 0 2rem; height: 48px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .btn-add:hover { background: var(--accent-strong); transform: translateY(-2px); }
+        .skill-item { border: 1px solid var(--border-subtle); padding: 1.5rem; border-radius: var(--radius-md); background: white; transition: var(--transition); margin-bottom: 1.25rem; position: relative; }
+        .skill-item:hover { border-color: var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .title-group { display: flex; align-items: center; gap: 12px; }
+        .skill-name { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        .streak-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .streak-active { background: var(--streak-bg); color: var(--streak-text); }
+        .streak-inactive { background: var(--border-subtle); color: var(--text-muted); }
+        .percent-text { font-weight: 700; color: var(--accent-strong); font-size: 1.1rem; }
+        .progress-track { height: 12px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 1.2rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-secondary)); border-radius: 20px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .item-footer { display: flex; justify-content: space-between; align-items: center; }
+        .stats-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .btn-checkin { display: flex; align-items: center; gap: 8px; padding: 8px 20px; border: 2px solid var(--accent); background: transparent; color: var(--accent); font-weight: 700; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); }
+        .btn-checkin:hover:not(:disabled) { background: var(--accent-soft); }
+        .btn-checkin:disabled { border-color: transparent; color: white; cursor: default; }
+        .btn-checkin.today { background: var(--success); }
+        .btn-checkin.done { background: var(--text-muted); }
+        .btn-delete { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; margin-left: 10px; cursor: pointer; text-decoration: underline; }
+        .btn-delete:hover { color: var(--danger); }
+        @media (max-width: 650px) { .input-row { flex-direction: column; align-items: stretch; } .btn-add { margin-top: 0.5rem; } .item-footer { flex-direction: column; align-items: flex-start; gap: 1rem; } .item-footer div:last-child { width: 100%; display: flex; justify-content: space-between; align-items: center; } }
+    </style>
+</head>
+<body>
+
+    <!-- FLASK USER BRIDGE -->
+    <script>
+        const currentUser = localStorage.getItem("currentUser");
+        if (!currentUser) { window.location.href = "/"; }
+    </script>
+
+    <header>
+        <div class="logo">SkillMaster</div>
+        <div class="brand-divider"></div>
+        <!-- CORRECT LINK TO HOME PAGE -->
+<a href="{{ url_for('home') }}" class="parent-logo">Cresco </a>
+    </header>
+
+    <section class="skill-section-wrapper">
+        <div class="tracker-card">
+            <div class="section-header">
+                <h2 class="section-title">Daily Progress</h2>
+                <p class="section-desc">Build new habits, one day at a time.</p>
+            </div>
+            <div class="input-row">
+                <div class="field"><label>Skill Name</label><input type="text" id="skillName" class="styled-input" placeholder="e.g. 30 Minutes Reading"></div>
+                <div class="field"><label>Target Days</label><input type="number" id="targetDays" class="styled-input" placeholder="e.g. 100" min="1"></div>
+                <button onclick="addSkill()" class="btn-add">Add Skill</button>
+            </div>
+            <div id="listContainer" class="skills-container"></div>
+        </div>
+    </section>
+
+    <!-- JAVASCRIPT (MULTI-USER) -->
+    <script>
+        // Use user email to create a unique storage key
+        const user = localStorage.getItem("currentUser") || "guest";
+        const KEY = user + '_skill_tracker';
+
+        const getToday = () => new Date().toISOString().split('T')[0];
+        const getYesterday = () => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().split('T')[0]; }
+
+        const loadData = () => { const str = localStorage.getItem(KEY); return str ? JSON.parse(str) : []; };
+        const saveData = (data) => { localStorage.setItem(KEY, JSON.stringify(data)); render(); };
+
+        function addSkill() {
+            const nameEl = document.getElementById('skillName');
+            const daysEl = document.getElementById('targetDays');
+            const name = nameEl.value.trim();
+            const days = parseInt(daysEl.value);
+            if (!name || !days || days < 1) { alert("Please enter a name and positive number of days."); return; }
+            const data = loadData();
+            data.push({ id: Date.now(), name, target: days, completed: 0, lastDate: null, streak: 0 });
+            saveData(data); nameEl.value = ''; daysEl.value = '';
+        }
+
+        function checkIn(id) {
+            const data = loadData();
+            const skill = data.find(x => x.id === id);
+            const today = getToday(); const yesterday = getYesterday();
+            if (skill && skill.lastDate !== today && skill.completed < skill.target) {
+                if (skill.lastDate === yesterday) skill.streak += 1; else skill.streak = 1;
+                skill.completed++; skill.lastDate = today; saveData(data);
+            }
+        }
+
+        function removeSkill(id) {
+            if(confirm("Remove this skill?")) { const data = loadData().filter(x => x.id !== id); saveData(data); }
+        }
+
+        function render() {
+            const container = document.getElementById('listContainer');
+            const data = loadData();
+            const today = getToday(); const yesterday = getYesterday();
+            container.innerHTML = '';
+            if(data.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:1rem;">No skills active. Add one above to start your streak!</div>`; return; }
+            data.forEach(skill => {
+                let pct = (skill.completed / skill.target) * 100; if(pct > 100) pct = 100;
+                let pctDisplay = (pct === 100) ? "100%" : pct.toFixed(2) + "%";
+                let displayStreak = skill.streak; let streakClass = "streak-active";
+                if (skill.lastDate !== today && skill.lastDate !== yesterday && skill.lastDate !== null) { displayStreak = 0; streakClass = "streak-inactive"; }
+                if (skill.streak === 0) streakClass = "streak-inactive";
+                const isToday = skill.lastDate === today; const isDone = skill.completed >= skill.target;
+                let btnText = "Check In"; let btnClass = "btn-checkin"; let disabled = false;
+                if (isDone) { btnText = "Goal Reached!"; btnClass += " done"; disabled = true; } else if (isToday) { btnText = "Done Today ✓"; btnClass += " today"; disabled = true; }
+                const html = `
+                    <div class="skill-item">
+                        <div class="item-header">
+                            <div class="title-group"><span class="skill-name">${skill.name}</span><span class="streak-badge ${streakClass}">🔥 ${displayStreak} Day Streak</span></div>
+                            <span class="percent-text">${pctDisplay}</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div>
+                        <div class="item-footer">
+                            <div class="stats-text">Progress: ${skill.completed} / ${skill.target} Days <button class="btn-delete" onclick="removeSkill(${skill.id})">Remove</button></div>
+                            <div><button class="${btnClass}" onclick="checkIn(${skill.id})" ${disabled ? 'disabled' : ''}>${btnText}</button></div>
+                        </div>
+                    </div>`;
+                container.innerHTML += html;
+            });
+        }
+        document.addEventListener('DOMContentLoaded', render);
+    </script>
+</body>
+</html>
