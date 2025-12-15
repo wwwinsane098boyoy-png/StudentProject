@@ -3,461 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Mission - Student Life OS</title>
-    
-    <!-- Tailwind CSS CDN for utility-first styling -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <!-- Custom styles for dark theme and subtle animations -->
+    <title>Focus Flow - StudentProject</title>
+    <!-- Chart.js for the graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* =====================================================
-           ROOT VARIABLES - Define our dark theme color palette
-           Using deep grays, blacks, and subtle blue accents
-           ===================================================== */
+        html { background-color: var(--bg-primary); height: 100%; }
         :root {
-            --bg-primary: #0a0a0f;        /* Deep black background */
-            --bg-secondary: #12121a;       /* Slightly lighter dark */
-            --bg-card: #1a1a24;            /* Card backgrounds */
-            --accent-blue: #3b82f6;        /* Primary blue accent */
-            --accent-blue-dim: #1e3a5f;    /* Dimmed blue for subtle effects */
-            --text-primary: #e5e7eb;       /* Light gray text */
-            --text-secondary: #9ca3af;     /* Muted gray text */
-            --border-subtle: #2a2a3a;      /* Subtle border color */
+            --bg-primary: #0a0a0a; --bg-secondary: #1a1a1a; --bg-tertiary: #202020; --bg-card: #252525;
+            --text-primary: #ffffff; --text-secondary: #a0a0a0; --text-tertiary: #707070;
+            --accent-primary: #6366f1; --accent-secondary: #818cf8; --accent-glow: #6366f140;
+            --border: #303030; --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
-
-        /* =====================================================
-           BASE STYLES - Apply dark theme to body
-           ===================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
         }
-
-        /* =====================================================
-           SUBTLE GRADIENT BACKGROUND - Creates depth without
-           being too flashy. Uses radial gradients for focus
-           ===================================================== */
-        .hero-gradient {
-            background: 
-                /* Top-right subtle blue glow */
-                radial-gradient(ellipse at 80% 20%, var(--accent-blue-dim) 0%, transparent 50%),
-                /* Bottom-left subtle glow for balance */
-                radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                /* Base dark background */
-                var(--bg-primary);
-        }
-
-        /* =====================================================
-           CARD STYLING - Cards have subtle borders and hover
-           effects that make them feel interactive
-           ===================================================== */
-        .mission-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Subtle glow effect on card hover */
-        .mission-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mission-card:hover::before {
-            opacity: 1;
-        }
-
-        .mission-card:hover {
-            border-color: var(--accent-blue-dim);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        /* =====================================================
-           ACCENT LINE - The vertical blue line that adds
-           visual interest to quote sections
-           ===================================================== */
-        .accent-line {
-            background: linear-gradient(180deg, var(--accent-blue), transparent);
-        }
-
-        /* =====================================================
-           TEXT HIGHLIGHT - Subtle blue text for emphasis
-           without being too bright or distracting
-           ===================================================== */
-        .text-accent {
-            color: var(--accent-blue);
-        }
-
-        /* =====================================================
-           PULSE ANIMATION - Subtle breathing effect for
-           the icon to draw attention without being annoying
-           ===================================================== */
-        @keyframes subtle-pulse {
-            0%, 100% { opacity: 0.7; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-
-        .pulse-subtle {
-            animation: subtle-pulse 3s ease-in-out infinite;
-        }
-
-        /* =====================================================
-           FADE-IN ANIMATION - Elements fade in when they
-           enter the viewport for a polished feel
-           ===================================================== */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        /* Staggered delays for sequential animations */
-        .delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .delay-2 { animation-delay: 0.3s; opacity: 0; }
-        .delay-3 { animation-delay: 0.5s; opacity: 0; }
-        .delay-4 { animation-delay: 0.7s; opacity: 0; }
-
-        /* =====================================================
-           ICON CONTAINER - Circular container with subtle
-           gradient border for visual hierarchy
-           ===================================================== */
-        .icon-container {
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
-            border: 1px solid var(--border-subtle);
-        }
-
-        /* =====================================================
-           DIVIDER - Horizontal line with gradient fade
-           for clean section separation
-           ===================================================== */
-        .gradient-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--border-subtle), var(--accent-blue-dim), var(--border-subtle), transparent);
-        }
+        .container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 2rem; flex: 1; }
+        .header { text-align: center; margin-bottom: 3rem; animation: fadeInDown 0.6s ease; }
+        .brand-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 1rem; }
+        .app-title { font-size: 1rem; font-weight: 500; color: var(--accent-secondary); text-transform: uppercase; letter-spacing: 3px; }
+        .brand-divider { width: 1px; height: 14px; background-color: rgba(255, 255, 255, 0.2); }
+        .parent-logo { font-size: 0.85rem; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; text-decoration: none; color: rgba(255, 255, 255, 0.4); transition: color 0.3s ease; }
+        .parent-logo:hover { color: rgba(255, 255, 255, 0.8); cursor: pointer; }
+        .clock { font-size: 4rem; font-weight: 200; background: linear-gradient(135deg, var(--text-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; position: relative; }
+        .clock::after { content: attr(data-date); position: absolute; bottom: -1.5rem; left: 50%; transform: translateX(-50%); font-size: 0.9rem; font-weight: 400; color: var(--text-secondary); -webkit-text-fill-color: var(--text-secondary); white-space: nowrap; }
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .card { background: var(--bg-tertiary); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); border: 1px solid var(--border); animation: fadeInUp 0.6s ease; }
+        .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary); }
+        .timer-section { display: flex; flex-direction: column; align-items: center; }
+        .timer-display { position: relative; width: 280px; height: 280px; margin-bottom: 2rem; }
+        .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .timer-background { fill: none; stroke: var(--bg-card); stroke-width: 12; }
+        .timer-progress { fill: none; stroke: var(--accent-primary); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+        .timer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .timer-countdown { font-size: 3rem; font-weight: 300; letter-spacing: -1px; }
+        .timer-label { font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
+        .timer-inputs { display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap; }
+        .time-input-group { display: flex; flex-direction: column; align-items: center; }
+        .time-input { width: 70px; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); text-align: center; font-size: 1.2rem; font-weight: 500; transition: all 0.3s ease; }
+        .time-input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .time-input-label { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.5rem; text-transform: uppercase; }
+        .timer-controls { display: flex; gap: 1rem; width: 100%; justify-content: center; }
+        .btn { padding: 0.75rem 2rem; border: none; border-radius: 12px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; max-width: 200px; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--accent-primary); color: white; }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .task-input { width: 100%; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 1rem; }
+        .current-task-display { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; border: 1px solid var(--border); border-left: 4px solid var(--accent-primary); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+        .stat-card { background: var(--bg-card); border-radius: 12px; padding: 1.2rem; text-align: center; border: 1px solid var(--border); }
+        .stat-value { font-size: 1.8rem; font-weight: 600; color: var(--accent-primary); }
+        .chart-container { position: relative; height: 250px; width: 100%; margin-top: 1rem; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .notification { position: fixed; top: 2rem; right: 2rem; background: var(--bg-card); border: 1px solid var(--accent-primary); border-radius: 12px; padding: 1rem 1.5rem; display: none; align-items: center; gap: 1rem; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .notification.show { display: flex; }
+        .notification-icon { width: 24px; height: 24px; background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        @media screen and (max-width: 1024px) { .container { padding: 1.5rem; } .main-content { grid-template-columns: 1fr; } .progress-section { grid-column: span 1; } }
+        @media screen and (max-width: 600px) { .brand-row { gap: 10px; } .timer-display { width: 240px; height: 240px; } .stats-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
     
-    <!-- =========================================================
-         MAIN MISSION SECTION
-         This is the primary container for our mission statement
-         Uses the hero-gradient for subtle depth
-         ========================================================= -->
-    <section class="hero-gradient min-h-screen py-16 px-4 sm:px-6 lg:px-8">
-        
-        <!-- Centered container with max-width for readability -->
-        <div class="max-w-5xl mx-auto">
-            
-            <!-- =================================================
-                 SECTION HEADER
-                 Includes icon, title, and tagline
-                 ================================================= -->
-            <div class="text-center mb-16 animate-fade-in delay-1">
-                
-                <!-- Decorative icon with pulse animation -->
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full icon-container mb-8 pulse-subtle">
-                    <!-- Target/Mission Icon SVG -->
-                    <svg class="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                </div>
-                
-                <!-- Main section title -->
-               <h1 class="text-4xl sm:text-5xl font-bold mb-4" style="color: var(--text-primary);">
-                    Our Mission
-                </h1>
-                <span class="text-3xl sm:text-3xl font-bold mb-3" style="color: var(--text-secondary);"><a href="{{ url_for('home') }}" 
-   class="text-3xl sm:text-3xl font-bold mb-3 transition-colors duration-300 hover:!text-white" 
-   style="color: var(--text-secondary);">
-   CRESCO
-</a></span>
-                
-                <!-- Subtitle/tagline with muted styling -->
-                <p class="text-lg" style="color: var(--text-secondary);">
-                    Understanding the problem we're solving
-                </p>
-            </div>
-
-            <!-- =================================================
-                 MAIN PROBLEM STATEMENT CARD
-                 The hero quote that captures the essence of
-                 our mission - combines the "Winner" option
-                 ================================================= -->
-            <div class="mission-card rounded-2xl p-8 sm:p-12 mb-12 animate-fade-in delay-2">
-                
-                <!-- Flex container with accent line and text -->
-                <div class="flex items-start gap-6">
-                    
-                    <!-- Vertical accent line for visual emphasis -->
-                    <div class="accent-line w-1 min-h-[120px] rounded-full hidden sm:block"></div>
-                    
-                    <!-- Quote content -->
-                    <div>
-                        <!-- The main powerful statement -->
-                        <blockquote class="text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed mb-6" style="color: var(--text-primary);">
-                            "Students are <span class="text-accent">drowning in good intentions</span> but starving for structure. Between the library, the gym, and the bank account, the modern student is managing <span class="text-accent">three full-time jobs</span> with zero oversight."
-                        </blockquote>
-                        
-                        <!-- The solution teaser -->
-                        <p class="text-lg sm:text-xl font-semibold" style="color: var(--accent-blue);">
-                            We turn that chaos into a daily streak.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Decorative divider between main quote and details -->
-            <div class="gradient-divider my-12 animate-fade-in delay-2"></div>
-
-            <!-- =================================================
-                 PROBLEM BREAKDOWN CARDS
-                 Three cards explaining different angles of
-                 the problem we're solving
-                 ================================================= -->
-            <div class="grid md:grid-cols-3 gap-6 mb-12 animate-fade-in delay-3">
-                
-                <!-- =============================================
-                     CARD 1: THE CHAOS ANGLE
-                     Focuses on fragmentation and juggling
-                     ============================================= -->
-                <div class="mission-card rounded-xl p-6">
-                    
-                    <!-- Card icon -->
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
-                        <!-- Puzzle piece icon representing fragmentation -->
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Card title -->
-                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
-                        The Fragmentation Problem
-                    </h3>
-                    
-                    <!-- Card description - explains the chaos angle -->
-                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
-                        Students today are expected to master new skills, manage tight budgets, and stay physically fit—but they're trying to build a future while <span class="text-accent">juggling three different apps</span> and scattered systems. We fix the fragmentation of the student lifestyle by bringing everything into one unified experience.
-                    </p>
-                </div>
-
-                <!-- =============================================
-                     CARD 2: THE ADULTING ANGLE
-                     Focuses on the systemic gap in student tools
-                     ============================================= -->
-                <div class="mission-card rounded-xl p-6">
-                    
-                    <!-- Card icon -->
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
-                        <!-- Refresh/loop icon representing the cycle -->
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Card title -->
-                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
-                        The "Adulting" Glitch
-                    </h3>
-                    
-                    <!-- Card description - explains the adulting angle -->
-                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
-                        Students are stuck in a loop of being <span class="text-accent">broke, burnt out, and behind</span> on their goals. There's never been an operating system designed specifically for student life—a central hub that understands the unique challenges of balancing education, finances, and wellbeing. <span class="text-accent">Until now.</span>
-                    </p>
-                </div>
-
-                <!-- =============================================
-                     CARD 3: THE STRUCTURE SOLUTION
-                     Focuses on what we provide as the solution
-                     ============================================= -->
-                <div class="mission-card rounded-xl p-6">
-                    
-                    <!-- Card icon -->
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: var(--accent-blue-dim);">
-                        <!-- Chart/trending icon representing progress -->
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-blue);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Card title -->
-                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">
-                        Structure Meets Simplicity
-                    </h3>
-                    
-                    <!-- Card description - explains our solution -->
-                    <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
-                        We transform overwhelming chaos into <span class="text-accent">achievable daily streaks</span>. Our platform provides the oversight and structure that's been missing—tracking your skills growth, financial health, and fitness goals in one place. Finally, students get the system they deserve.
-                    </p>
-                </div>
-            </div>
-
-            <!-- =================================================
-                 DETAILED EXPLANATION SECTION
-                 Longer-form content explaining our approach
-                 ================================================= -->
-            <div class="mission-card rounded-2xl p-8 sm:p-10 animate-fade-in delay-4">
-                
-                <h2 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">
-                    Why This Matters
-                </h2>
-                
-                <!-- Grid layout for the explanation points -->
-                <div class="grid sm:grid-cols-2 gap-8">
-                    
-                    <!-- Left column: The Problem Deep Dive -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--accent-blue);">
-                            <!-- Warning icon -->
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            The Reality Check
-                        </h3>
-                        
-                        <!-- Bullet points explaining the problem -->
-                        <ul class="space-y-3 text-sm" style="color: var(--text-secondary);">
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">•</span>
-                                <span>The average student uses 5+ different apps to manage their daily life, creating information silos and mental overhead.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">•</span>
-                                <span>70% of students report feeling overwhelmed by competing priorities between academics, finances, and health.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">•</span>
-                                <span>Traditional productivity tools weren't built for the unique rhythm of student life—semester cycles, variable income, and evolving goals.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Right column: Our Approach -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: var(--accent-blue);">
-                            <!-- Lightbulb/solution icon -->
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                            </svg>
-                            Our Approach
-                        </h3>
-                        
-                        <!-- Bullet points explaining our solution -->
-                        <ul class="space-y-3 text-sm" style="color: var(--text-secondary);">
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">✓</span>
-                                <span><strong style="color: var(--text-primary);">Unified Dashboard:</strong> One place to see your skills progress, budget status, and fitness streaks at a glance.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">✓</span>
-                                <span><strong style="color: var(--text-primary);">Smart Streaks:</strong> Gamified daily habits that make consistency rewarding, not exhausting.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-accent mt-1">✓</span>
-                                <span><strong style="color: var(--text-primary);">Student-First Design:</strong> Built around how students actually live—flexible, forgiving, and focused on progress over perfection.</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Bottom CTA/Summary -->
-                <div class="mt-8 pt-6" style="border-top: 1px solid var(--border-subtle);">
-                    <p class="text-center text-base" style="color: var(--text-secondary);">
-                        We believe every student deserves a <span class="text-accent font-semibold">personal operating system</span> that grows with them—turning daily chaos into meaningful progress, one streak at a time.
-                    </p>
-                </div>
-            </div>
-
-            <!-- =================================================
-                 FOOTER ATTRIBUTION
-                 Simple footer with subtle styling
-                 ================================================= -->
-            <footer class="text-center mt-16 pb-8">
-                <p class="text-sm" style="color: var(--text-secondary);">
-                    Built for students, by people who understand the struggle.
-                </p>
-            </footer>
-
-        </div>
-    </section>
-
-    <!-- =========================================================
-         JAVASCRIPT - Intersection Observer for Scroll Animations
-         This script triggers animations when elements come into view
-         ========================================================= -->
+    <!-- AUTH BRIDGE -->
     <script>
-        // =====================================================
-        // INTERSECTION OBSERVER SETUP
-        // Watches for elements entering the viewport and
-        // triggers their fade-in animations
-        // =====================================================
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // Create an observer instance
-            // threshold: 0.1 means trigger when 10% of element is visible
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    // When element enters viewport, add the animation class
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                        // Stop observing after animation triggers (performance)
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1,  // Trigger when 10% visible
-                rootMargin: '0px 0px -50px 0px'  // Slight offset for better timing
-            });
-
-            // Select all elements with animation delay classes
-            // These are the elements we want to animate on scroll
-            const animatedElements = document.querySelectorAll('.delay-1, .delay-2, .delay-3, .delay-4');
-            
-            // Start observing each element
-            animatedElements.forEach(el => {
-                observer.observe(el);
-            });
-        });
-
-        // =====================================================
-        // SMOOTH SCROLL ENHANCEMENT
-        // Adds smooth scrolling behavior for any anchor links
-        // =====================================================
-        
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+        // Security: Ensure user is logged in
+        const currentUser = localStorage.getItem("currentUser");
+        if (!currentUser) { window.location.href = "/"; }
     </script>
 
+    <header class="header">
+        <div class="container">
+            <div class="brand-row">
+                <div class="app-title">Focus Flow</div>
+                <div class="brand-divider"></div>
+                <!-- Link back to Main Dashboard -->
+                <a href="{{ url_for('home') }}" class="parent-logo">Cresco </a>
+            </div>
+            <div class="clock" id="clock" data-date="">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="main-content">
+            <!-- Focus Timer -->
+            <div class="card">
+                <h2 class="card-title">Focus Timer</h2>
+                <div class="timer-section">
+                    <div class="timer-display">
+                        <svg class="timer-svg">
+                            <circle class="timer-background" cx="140" cy="140" r="130"></circle>
+                            <circle class="timer-progress" id="timerProgress" cx="140" cy="140" r="130"></circle>
+                        </svg>
+                        <div class="timer-text">
+                            <div class="timer-countdown" id="timerCountdown">00:00:00</div>
+                            <div class="timer-label" id="timerStatus">Ready to focus</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-inputs">
+                        <div class="time-input-group">
+                            <input type="number" class="time-input" id="hoursInput" min="0" max="23" value="0"><span class="time-input-label">Hours</span>
+                        </div>
+                        <div class="time-input-group">
+                            <input type="number" class="time-input" id="minutesInput" min="0" max="59" value="25"><span class="time-input-label">Minutes</span>
+                        </div>
+                        <div class="time-input-group">
+                            <input type="number" class="time-input" id="secondsInput" min="0" max="59" value="0"><span class="time-input-label">Seconds</span>
+                        </div>
+                    </div>
+
+                    <div class="timer-controls">
+                        <button class="btn btn-primary" id="startBtn"><span>Start Focus</span></button>
+                        <button class="btn btn-secondary" id="pauseBtn"><span>Pause</span></button>
+                        <button class="btn btn-secondary" id="resetBtn"><span>Reset</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Management -->
+            <div class="card">
+                <h2 class="card-title">Task Management</h2>
+                <div class="task-section">
+                    <div class="task-input-group">
+                        <input type="text" class="task-input" id="taskInput" placeholder="What are you working on?">
+                        <button class="btn btn-primary" id="updateTaskBtn" style="width: 100%; margin-top: 1rem;"><span>Update Task</span></button>
+                    </div>
+                    <div class="current-task-display">
+                        <div class="current-task-label">Current Task</div>
+                        <div class="current-task-text" id="currentTask">No task set</div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-value" id="todayTime">0h</div><div class="stat-label">Today's Focus</div></div>
+                        <div class="stat-card"><div class="stat-value" id="totalSessions">0</div><div class="stat-label">Sessions</div></div>
+                        <div class="stat-card"><div class="stat-value" id="streak">0</div><div class="stat-label">Day Streak</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Analytics -->
+            <div class="card progress-section">
+                <h2 class="card-title">Daily Study Progress</h2>
+                <div class="chart-container"><canvas id="progressChart"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="notification" id="notification">
+        <div class="notification-icon">✓</div>
+        <div><div style="font-weight: 600;">Focus Session Complete!</div><div style="font-size: 0.9rem; color: var(--text-secondary);">Great work! Time for a break.</div></div>
+    </div>
+
+    <!-- JAVASCRIPT (MULTI-USER SUPPORT) -->
+<script>
+    // --- KEYS ---
+    const user = localStorage.getItem("currentUser") || "guest";
+    const KEY_STUDY_DATA = user + "_studyData";
+    const KEY_CURRENT_TASK = user + "_currentTask";
+
+    let timerInterval = null;
+    let totalSeconds = 0;
+    let remainingSeconds = 0;
+    let isPaused = false;
+    let isRunning = false;
+    let currentTask = '';
+    let studyData = {};
+    let chart = null;
+
+    // Elements
+    const clockElement = document.getElementById('clock');
+    const timerCountdown = document.getElementById('timerCountdown');
+    const timerProgress = document.getElementById('timerProgress');
+    const timerStatus = document.getElementById('timerStatus');
+    const hoursInput = document.getElementById('hoursInput');
+    const minutesInput = document.getElementById('minutesInput');
+    const secondsInput = document.getElementById('secondsInput');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const taskInput = document.getElementById('taskInput');
+    const updateTaskBtn = document.getElementById('updateTaskBtn');
+    const currentTaskDisplay = document.getElementById('currentTask');
+    const todayTimeDisplay = document.getElementById('todayTime');
+    const totalSessionsDisplay = document.getElementById('totalSessions');
+    const streakDisplay = document.getElementById('streak');
+    const notification = document.getElementById('notification');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeClock();
+        loadData();
+        initializeChart();
+        updateStats();
+        setupEventListeners();
+        setupTimerCircle();
+    });
+
+    // --- HELPER: CONSISTENT DATE KEY (YYYY-MM-DD) ---
+    // This fixes the bug where data disappears because of timezones
+    function getLocalKey(d) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function initializeClock() { updateClock(); setInterval(updateClock, 1000); }
+    function updateClock() {
+        const now = new Date();
+        clockElement.textContent = now.toLocaleTimeString('en-US', {hour12: false});
+        clockElement.setAttribute('data-date', now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    }
+
+    function setupTimerCircle() {
+        const circumference = 2 * Math.PI * 130;
+        timerProgress.style.strokeDasharray = circumference;
+        timerProgress.style.strokeDashoffset = circumference;
+    }
+
+    function startTimer() {
+        if (isRunning && !isPaused) return;
+        if (!isPaused) {
+            const h = parseInt(hoursInput.value)||0, m = parseInt(minutesInput.value)||0, s = parseInt(secondsInput.value)||0;
+            totalSeconds = h * 3600 + m * 60 + s;
+            remainingSeconds = totalSeconds;
+            if (totalSeconds === 0) return alert('Please set a duration');
+        }
+        isRunning = true; isPaused = false;
+        timerStatus.textContent = 'Focus mode active';
+        startBtn.innerHTML = '<span>Focusing...</span>'; startBtn.disabled = true;
+        timerInterval = setInterval(() => {
+            if (remainingSeconds > 0) { remainingSeconds--; updateTimerDisplay(); updateProgress(); }
+            else completeTimer();
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (!isRunning || isPaused) return;
+        clearInterval(timerInterval); isPaused = true; isRunning = false;
+        timerStatus.textContent = 'Paused'; startBtn.innerHTML = '<span>Resume</span>'; startBtn.disabled = false;
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval); isRunning = false; isPaused = false; remainingSeconds = 0; totalSeconds = 0;
+        updateTimerDisplay(); updateProgress();
+        timerStatus.textContent = 'Ready to focus'; startBtn.innerHTML = '<span>Start Focus</span>'; startBtn.disabled = false;
+    }
+
+    function completeTimer() {
+        clearInterval(timerInterval); isRunning = false; isPaused = false;
+        // Save the minutes worked
+        const minutesWorked = Math.ceil(totalSeconds / 60); 
+        saveStudyTime(minutesWorked);
+        
+        timerStatus.textContent = 'Session complete!'; startBtn.innerHTML = '<span>Start Focus</span>'; startBtn.disabled = false;
+        showNotification(); playNotificationSound();
+        setTimeout(resetTimer, 3000);
+    }
+
+    function updateTimerDisplay() {
+        const h = Math.floor(remainingSeconds / 3600), m = Math.floor((remainingSeconds%3600)/60), s = remainingSeconds%60;
+        timerCountdown.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    function updateProgress() {
+        if(totalSeconds === 0) { timerProgress.style.strokeDashoffset = 2 * Math.PI * 130; return; }
+        const circumference = 2 * Math.PI * 130;
+        const progress = remainingSeconds / totalSeconds;
+        timerProgress.style.strokeDashoffset = circumference * (1 - progress);
+    }
+
+    function updateTask() {
+        const task = taskInput.value.trim();
+        if (task) {
+            currentTask = task; currentTaskDisplay.textContent = task;
+            localStorage.setItem(KEY_CURRENT_TASK, task); taskInput.value = '';
+        }
+    }
+
+    // --- DATA HANDLING ---
+    function loadData() {
+        const savedData = localStorage.getItem(KEY_STUDY_DATA);
+        if (savedData) {
+            studyData = JSON.parse(savedData);
+        } else {
+            studyData = {}; 
+        }
+        const savedTask = localStorage.getItem(KEY_CURRENT_TASK);
+        if (savedTask) { currentTask = savedTask; currentTaskDisplay.textContent = savedTask; }
+    }
+
+    function saveStudyTime(minutes) {
+        const todayKey = getLocalKey(new Date());
+        
+        if (!studyData[todayKey]) {
+            studyData[todayKey] = { minutes: 0, sessions: 0 };
+        }
+        
+        studyData[todayKey].minutes += minutes;
+        studyData[todayKey].sessions += 1;
+        
+        localStorage.setItem(KEY_STUDY_DATA, JSON.stringify(studyData));
+        updateStats(); 
+        updateChart();
+    }
+
+    function updateStats() {
+        const todayKey = getLocalKey(new Date());
+        const todayData = studyData[todayKey] || { minutes: 0, sessions: 0 };
+        
+        const h = Math.floor(todayData.minutes/60), m = todayData.minutes%60;
+        todayTimeDisplay.textContent = h>0 ? `${h}h ${m}m` : `${m}m`;
+        totalSessionsDisplay.textContent = todayData.sessions;
+        
+        // Streak Calc
+        let streak = 0;
+        const d = new Date();
+        for (let i = 0; i < 365; i++) {
+            const checkDate = new Date();
+            checkDate.setDate(d.getDate() - i);
+            const key = getLocalKey(checkDate);
+            
+            if (studyData[key] && studyData[key].minutes > 0) {
+                streak++;
+            } else if (i > 0) {
+                // Break streak if we miss a day (except today, if we haven't started yet)
+                // Logic: If yesterday missing, streak over.
+                break;
+            }
+        }
+        streakDisplay.textContent = streak;
+    }
+
+    // --- CHART LOGIC ---
+    function initializeChart() {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const chartData = getChartData();
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{ 
+                    label: 'Study Time (minutes)', 
+                    data: chartData.data, 
+                    backgroundColor: '#6366f1', 
+                    borderRadius: 4 
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: '#303030' }, 
+                        ticks: { color: '#707070' } 
+                    }, 
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#707070' } 
+                    } 
+                } 
+            }
+        });
+    }
+
+    function getChartData() {
+        const labels = [];
+        const data = [];
+        
+        // Get last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            
+            const key = getLocalKey(d); // Matches saveStudyTime key exactly
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+            
+            labels.push(dayName);
+            
+            // Check if data exists for this key
+            if (studyData[key]) {
+                data.push(studyData[key].minutes);
+            } else {
+                data.push(0);
+            }
+        }
+        return { labels, data };
+    }
+
+    function updateChart() {
+        if (!chart) return;
+        const chartData = getChartData();
+        chart.data.labels = chartData.labels;
+        chart.data.datasets[0].data = chartData.data;
+        chart.update();
+    }
+
+    function showNotification() {
+        notification.classList.add('show');
+        setTimeout(() => { notification.classList.remove('show'); }, 5000);
+    }
+
+    function playNotificationSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode); gainNode.connect(audioContext.destination);
+        oscillator.frequency.value = 800; oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    function setupEventListeners() {
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        updateTaskBtn.addEventListener('click', updateTask);
+        taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') updateTask(); });
+        
+        [hoursInput, minutesInput, secondsInput].forEach(input => {
+            input.addEventListener('input', (e) => {
+                const max = parseInt(e.target.max), min = parseInt(e.target.min);
+                let value = parseInt(e.target.value);
+                if (value > max) e.target.value = max; if (value < min) e.target.value = min;
+            });
+        });
+    }
+</script>
 </body>
 </html>
